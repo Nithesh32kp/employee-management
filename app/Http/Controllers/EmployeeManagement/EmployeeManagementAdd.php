@@ -24,8 +24,8 @@ class EmployeeManagementAdd extends Controller
                     ->orWhere('employee_id', 'like', "%$s%");
             }))
             ->when($request->education, fn($q, $v) => $q->where('education_qualification', $v))
-            ->when($request->dob_from, fn($q, $v) => $q->whereDate('date_of_birth', '>=', $v))
-            ->when($request->dob_to, fn($q, $v) => $q->whereDate('date_of_birth', '<=', $v));
+            ->when($request->created_from, fn($q, $v) => $q->whereDate('created_at', '>=', $v))
+            ->when($request->created_to, fn($q, $v) => $q->whereDate('created_at', '<=', $v));
     }
     public function index(Request $request)
     {

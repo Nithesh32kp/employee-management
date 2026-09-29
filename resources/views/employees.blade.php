@@ -62,10 +62,10 @@
         {{-- Card --}}
         <div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
 
-            {{-- Toolbar --}}
             <div class="border-b border-slate-100 p-4">
-                <form method="GET" action="{{ route('employees.index') }}" class="flex max-w-md gap-2">
-                    <div class="relative flex-1">
+                <form method="GET" action="{{ route('employees.index') }}" class="flex flex-wrap items-end gap-3">
+
+                    <div class="relative min-w-[220px] flex-1">
                         <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
                             fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <circle cx="11" cy="11" r="7" />
@@ -84,28 +84,32 @@
                         @endforeach
                     </select>
 
-                    <div class="flex items-center gap-1 text-xs text-slate-500">
-                        <span>DOB</span>
-                        <input type="date" name="dob_from" value="{{ request('dob_from') }}"
-                            class="rounded-xl border border-slate-200 bg-slate-50 px-2 py-2 text-sm focus:border-amber-400 focus:outline-none">
-                        <span>to</span>
-                        <input type="date" name="dob_to" value="{{ request('dob_to') }}"
-                            class="rounded-xl border border-slate-200 bg-slate-50 px-2 py-2 text-sm focus:border-amber-400 focus:outline-none">
+                    <div class="flex items-center gap-2">
+                        <div>
+                            <label class="mb-1 block text-xs font-medium text-slate-500">Created from</label>
+                            <input type="date" name="created_from" value="{{ request('created_from') }}"
+                                class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-100">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs font-medium text-slate-500">Created to</label>
+                            <input type="date" name="created_to" value="{{ request('created_to') }}"
+                                class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-100">
+                        </div>
                     </div>
+
                     <button
-                        class="rounded-xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-700">
-                        Search
+                        class="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700">
+                        Filter
                     </button>
-                    @if (request('q'))
+
+                    @if (request()->hasAny(['q', 'education', 'created_from', 'created_to']))
                         <a href="{{ route('employees.index') }}"
-                            class="flex items-center rounded-xl border border-slate-200 px-4 text-sm text-slate-500 transition hover:bg-slate-50">
+                            class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-500 transition hover:bg-slate-50">
                             Clear
                         </a>
                     @endif
                 </form>
             </div>
-
-            {{-- Flash / errors --}}
             @if (session('success'))
                 <div
                     class="mx-4 mt-4 flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700 ring-1 ring-emerald-200">
@@ -127,8 +131,6 @@
                     </ul>
                 </div>
             @endif
-
-            {{-- Table --}}
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
                     <thead>
@@ -170,8 +172,6 @@
 
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-end gap-1">
-
-                                        {{-- View --}}
                                         <a title="View"
                                             href="{{ route('employees.index', ['view' => $employee->id, 'page' => request('page'), 'q' => request('q')]) }}"
                                             class="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600">
@@ -182,8 +182,6 @@
                                                 <circle cx="12" cy="12" r="3" />
                                             </svg>
                                         </a>
-
-                                        {{-- Edit --}}
                                         <a title="Edit"
                                             href="{{ route('employees.index', ['edit' => $employee->id, 'page' => request('page'), 'q' => request('q')]) }}"
                                             class="rounded-lg p-2 text-slate-400 transition hover:bg-amber-50 hover:text-amber-600">
@@ -193,8 +191,6 @@
                                                     d="m16.9 3.6 3.5 3.5M4 20l4.2-.8L19.4 8 16 4.6 4.8 15.8 4 20Z" />
                                             </svg>
                                         </a>
-
-                                        {{-- Delete --}}
                                         <form method="POST" action="{{ route('employees.destroy', $employee) }}"
                                             onsubmit="return confirm('Delete this employee?')">
                                             @csrf
@@ -265,7 +261,6 @@
 
             <div class="p-6">
                 @if ($viewEmployee)
-                    {{-- ===== VIEW ===== --}}
                     <div class="mb-6 flex items-center gap-4">
                         @if ($viewEmployee->photo)
                             <img src="{{ asset('storage/' . $viewEmployee->photo) }}"
