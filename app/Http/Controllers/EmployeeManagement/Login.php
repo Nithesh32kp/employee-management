@@ -20,11 +20,20 @@ class Login extends Controller
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->route('employee.add');
+            return redirect()->intended(route('employees.index'));
         }
 
         return back()->withErrors(['email' => 'Invalid email or password'])->onlyInput('email');
+    }
+
+    public function destroy(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
     }
 }

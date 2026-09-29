@@ -14,8 +14,9 @@
 
         {{-- Left: Logo --}}
         <div class="hidden md:flex items-center justify-center bg-gradient-to-br from-amber-400 to-amber-600 p-10">
-            <div class="bg-white rounded-2xl p-6 shadow-lg">
-                <img src="{{ asset('Logo/creative-bees-logo.png') }}" alt="Logo" class="h-28 w-auto">
+            <div class="w-full max-w-sm rounded-2xl bg-white p-4 shadow-lg">
+                <img src="{{ asset('Logo/creative-bees-logo.png') }}" alt="Creative Bees"
+                    class="block h-auto max-h-24 w-full object-contain">
             </div>
         </div>
 
@@ -23,7 +24,8 @@
         <div class="p-8 sm:p-12 flex flex-col justify-center">
 
             <div class="md:hidden flex justify-center mb-6">
-                <img src="{{ asset('Logo/creative-bees-logo.png') }}" alt="Logo" class="h-16 w-auto">
+                <img src="{{ asset('Logo/creative-bees-logo.png') }}" alt="Creative Bees"
+                    class="block h-auto max-h-14 w-full max-w-[220px] object-contain">
             </div>
 
             <form method="POST" action="{{ route('register.store') }}" class="space-y-4">

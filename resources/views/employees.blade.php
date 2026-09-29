@@ -26,37 +26,58 @@
 
 <body class="min-h-screen bg-slate-100 text-slate-700 antialiased {{ $showModal ? 'overflow-hidden' : '' }}">
 
-    <div class="mx-auto max-w-6xl px-4 py-10">
-        <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div class="mx-auto max-w-6xl px-4 py-8 sm:py-10">
+        <div class="mb-7 flex flex-col gap-5 border-b border-slate-200 pb-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-bold tracking-tight text-slate-900">Employees</h1>
-                <p class="mt-1 text-sm text-slate-500">
+                <h1 class="text-3xl font-bold tracking-tight text-slate-900">Employees</h1>
+                <p class="mt-1.5 text-sm text-slate-500">
                     {{ $employees->total() }} {{ Str::plural('employee', $employees->total()) }} in total
                 </p>
             </div>
 
-            <a href="{{ route('employees.export', request()->query()) }}"
-                class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
-                Export Excel
-            </a>
+            <div class="flex flex-wrap items-center gap-2.5">
+                <a href="{{ route('employees.export', request()->query()) }}"
+                    class="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-100">
+                    <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3" />
+                    </svg>
+                    Export
+                </a>
 
-            <form method="POST" action="{{ route('employees.import') }}" enctype="multipart/form-data" class="flex">
-                @csrf
-                <input type="file" name="file" id="importFile" accept=".xlsx,.xls,.csv" class="hidden"
-                    onchange="this.form.submit()">
-                <button type="button" onclick="document.getElementById('importFile').click()"
-                    class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
-                    Import Excel
+                <form method="POST" action="{{ route('employees.import') }}" enctype="multipart/form-data" id="importForm">
+                    @csrf
+                    <input type="file" name="file" id="importFile" accept=".xlsx,.xls,.csv" class="hidden"
+                        aria-label="Choose spreadsheet to import">
+                    <button type="button" id="importButton"
+                        class="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-100 disabled:cursor-wait disabled:opacity-75"
+                        aria-busy="false">
+                        <svg id="importIcon" class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0L8 8m4-4 4 4M5 14v5h14v-5" />
+                        </svg>
+                        <svg id="importSpinner" class="hidden h-4 w-4 animate-spin text-amber-600" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        <span id="importLabel">Import</span>
+                    </button>
+                </form>
+
+                <button type="button" id="addEmployee"
+                    class="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-amber-500 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-600 focus:outline-none focus:ring-4 focus:ring-amber-200">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" d="M12 5v14M5 12h14" />
+                    </svg>
+                    Add Employee
                 </button>
-            </form>
 
-            <button type="button" id="addEmployee"
-                class="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-amber-500/30 transition hover:bg-amber-600 focus:outline-none focus:ring-4 focus:ring-amber-200">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" d="M12 5v14M5 12h14" />
-                </svg>
-                Add Employee
-            </button>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit"
+                        class="inline-flex h-11 items-center justify-center rounded-lg px-4 text-sm font-medium text-slate-600 transition hover:bg-slate-200/70 hover:text-slate-900 focus:outline-none focus:ring-4 focus:ring-slate-200">
+                        Log out
+                    </button>
+                </form>
+            </div>
         </div>
 
         {{-- Card --}}
@@ -410,6 +431,21 @@
 
             $('#addEmployee').on('click', openModal);
             $('#closeModal, #cancelModal').on('click', closeModal);
+
+            const importFile = document.getElementById('importFile');
+            const importButton = document.getElementById('importButton');
+
+            importButton.addEventListener('click', () => importFile.click());
+            importFile.addEventListener('change', () => {
+                if (!importFile.files.length) return;
+
+                importButton.disabled = true;
+                importButton.setAttribute('aria-busy', 'true');
+                document.getElementById('importIcon').classList.add('hidden');
+                document.getElementById('importSpinner').classList.remove('hidden');
+                document.getElementById('importLabel').textContent = 'Uploading...';
+                document.getElementById('importForm').requestSubmit();
+            });
 
             $modal.on('click', function(e) {
                 if (e.target === this) closeModal();

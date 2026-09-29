@@ -15,8 +15,9 @@
         {{-- Left: Branding --}}
         <div
             class="hidden md:flex flex-col items-center justify-center bg-gradient-to-br from-amber-400 to-amber-600 p-10 text-white text-center">
-            <div class="bg-white rounded-2xl p-4 shadow-lg mb-6">
-                <img src="{{ asset('Logo/creative-bees-logo.png') }}" alt="Creative Bees" class="h-24 w-auto">
+            <div class="mb-6 w-full max-w-sm rounded-2xl bg-white p-4 shadow-lg">
+                <img src="{{ asset('Logo/creative-bees-logo.png') }}" alt="Creative Bees"
+                    class="block h-auto max-h-24 w-full object-contain">
             </div>
             <h1 class="text-3xl font-bold mb-2">Creative Bees</h1>
             <p class="text-amber-50 text-sm leading-relaxed">
@@ -27,14 +28,19 @@
         {{-- Right: Form --}}
         <div class="p-8 sm:p-12">
             {{-- Mobile logo --}}
-            <div class="md:hidden flex justify-center mb-6">
-                <img src="{{ asset('Logo/creative-bees-logo.png') }}" alt="Creative Bees" class="h-16 w-auto">
+            <div class="mb-6 flex justify-center md:hidden">
+                <img src="{{ asset('Logo/creative-bees-logo.png') }}" alt="Creative Bees"
+                    class="block h-auto max-h-14 w-full max-w-[220px] object-contain">
             </div>
 
             <h2 class="text-2xl font-bold text-gray-800">Welcome back</h2>
             <p class="text-sm text-gray-500 mt-1 mb-8">Login to Employee Management System</p>
 
-            <form method="POST" action="{{ route('login') }}" class="space-y-5">
+            @if (session('status'))
+                <p class="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">{{ session('status') }}</p>
+            @endif
+
+            <form method="POST" action="{{ route('login.store') }}" class="space-y-5">
                 @csrf
 
                 {{-- Email --}}
