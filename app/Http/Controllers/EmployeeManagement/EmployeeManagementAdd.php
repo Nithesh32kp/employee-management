@@ -7,25 +7,39 @@ use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
-
+use App\Exports\EmployeesExport;
+use App\Imports\EmployeesImport;
+use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 class EmployeeManagementAdd extends Controller
 {
-    public function index(Request $request)
+
+    private function filtered(Request $request)
     {
-        $employees = Employee::query()
+        return Employee::query()
             ->when($request->q, fn($q, $s) => $q->where(function ($w) use ($s) {
                 $w->where('firstname', 'like', "%$s%")
                     ->orWhere('lastname', 'like', "%$s%")
                     ->orWhere('email', 'like', "%$s%")
                     ->orWhere('employee_id', 'like', "%$s%");
             }))
-            ->latest()->paginate(10)->withQueryString();
+            ->when($request->education, fn($q, $v) => $q->where('education_qualification', $v))
+            ->when($request->dob_from, fn($q, $v) => $q->whereDate('date_of_birth', '>=', $v))
+            ->when($request->dob_to, fn($q, $v) => $q->whereDate('date_of_birth', '<=', $v));
+    }
+    public function index(Request $request)
+    {
+        $employees = $this->filtered($request)->latest()->paginate(10)->withQueryString();
+
+        $educations = Employee::query()->distinct()
+            ->orderBy('education_qualification')->pluck('education_qualification');
 
         $viewEmployee = $request->filled('view') ? Employee::find($request->view) : null;
         $editEmployee = $request->filled('edit') ? Employee::find($request->edit) : null;
 
-        return view('employees', compact('employees', 'viewEmployee', 'editEmployee'));
+        return view('employees', compact('employees', 'educations', 'viewEmployee', 'editEmployee'));
     }
+
 
     public function store(Request $request)
     {
@@ -63,6 +77,29 @@ class EmployeeManagementAdd extends Controller
         return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
     }
 
+    public function export(Request $request)
+    {
+        return Excel::download(
+            new EmployeesExport($this->filtered($request)->latest()),
+            'employees-' . now()->format('Ymd-His') . '.xlsx'
+        );
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate(['file' => 'required|mimes:xlsx,xls,csv|max:5120']);
+
+        try {
+            Excel::import(new EmployeesImport, $request->file('file'));
+        } catch (ValidationException $e) {
+            $msgs = collect($e->failures())
+                ->map(fn($f) => 'Row ' . $f->row() . ': ' . implode(', ', $f->errors()))
+                ->take(5)->implode(' | ');
+            return redirect()->route('employees.index')->with('error', $msgs);
+        }
+
+        return redirect()->route('employees.index')->with('success', 'Employees imported successfully.');
+    }
     public function destroy(Employee $employee)
     {
         if ($employee->photo)

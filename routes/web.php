@@ -15,6 +15,8 @@ Route::middleware('guest')->group(function () {
         Route::post('/employees', [EmployeeManagementAdd::class, 'store'])->name('employees.store');
         Route::put('/employees/{employee}', [EmployeeManagementAdd::class, 'update'])->name('employees.update');
         Route::delete('/employees/{employee}', [EmployeeManagementAdd::class, 'destroy'])->name('employees.destroy');
+        Route::get('employees/export', [EmployeeManagementAdd::class, 'export'])->name('employees.export');
+        Route::post('employees/import', [EmployeeManagementAdd::class, 'import'])->name('employees.import');
     });
 });
 

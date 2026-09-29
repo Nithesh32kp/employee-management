@@ -35,6 +35,21 @@
                 </p>
             </div>
 
+            <a href="{{ route('employees.export', request()->query()) }}"
+                class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                Export Excel
+            </a>
+
+            <form method="POST" action="{{ route('employees.import') }}" enctype="multipart/form-data" class="flex">
+                @csrf
+                <input type="file" name="file" id="importFile" accept=".xlsx,.xls,.csv" class="hidden"
+                    onchange="this.form.submit()">
+                <button type="button" onclick="document.getElementById('importFile').click()"
+                    class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                    Import Excel
+                </button>
+            </form>
+
             <button type="button" id="addEmployee"
                 class="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-amber-500/30 transition hover:bg-amber-600 focus:outline-none focus:ring-4 focus:ring-amber-200">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -58,6 +73,24 @@
                         </svg>
                         <input name="q" value="{{ request('q') }}" placeholder="Search name, email, ID..."
                             class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm placeholder-slate-400 transition focus:border-amber-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-amber-100">
+                    </div>
+
+                    <select name="education"
+                        class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-100">
+                        <option value="">All education</option>
+                        @foreach ($educations as $edu)
+                            <option value="{{ $edu }}" @selected(request('education') === $edu)>{{ $edu }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <div class="flex items-center gap-1 text-xs text-slate-500">
+                        <span>DOB</span>
+                        <input type="date" name="dob_from" value="{{ request('dob_from') }}"
+                            class="rounded-xl border border-slate-200 bg-slate-50 px-2 py-2 text-sm focus:border-amber-400 focus:outline-none">
+                        <span>to</span>
+                        <input type="date" name="dob_to" value="{{ request('dob_to') }}"
+                            class="rounded-xl border border-slate-200 bg-slate-50 px-2 py-2 text-sm focus:border-amber-400 focus:outline-none">
                     </div>
                     <button
                         class="rounded-xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-700">
@@ -142,8 +175,8 @@
                                         <a title="View"
                                             href="{{ route('employees.index', ['view' => $employee->id, 'page' => request('page'), 'q' => request('q')]) }}"
                                             class="rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600">
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8"
-                                                viewBox="0 0 24 24">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor"
+                                                stroke-width="1.8" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                     d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
                                                 <circle cx="12" cy="12" r="3" />
@@ -154,8 +187,8 @@
                                         <a title="Edit"
                                             href="{{ route('employees.index', ['edit' => $employee->id, 'page' => request('page'), 'q' => request('q')]) }}"
                                             class="rounded-lg p-2 text-slate-400 transition hover:bg-amber-50 hover:text-amber-600">
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8"
-                                                viewBox="0 0 24 24">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor"
+                                                stroke-width="1.8" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                     d="m16.9 3.6 3.5 3.5M4 20l4.2-.8L19.4 8 16 4.6 4.8 15.8 4 20Z" />
                                             </svg>
