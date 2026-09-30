@@ -50,15 +50,28 @@
                 </div>
 
                 <div>
-                    <input type="password" name="password" placeholder="Password" required
-                        class="w-full px-4 py-3 border rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent @error('password') border-red-500 @else border-gray-300 @enderror">
+                    <div class="relative">
+                        <input type="password" id="password" name="password" placeholder="Password" required
+                            class="w-full px-4 py-3 pr-16 border rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent @error('password') border-red-500 @else border-gray-300 @enderror">
+                        <button type="button" data-toggle="password"
+                            class="absolute inset-y-0 right-0 px-4 text-sm font-medium text-amber-600 hover:text-amber-700 focus:outline-none">
+                            Show
+                        </button>
+                    </div>
                     @error('password')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <input type="password" name="password_confirmation" placeholder="Confirm Password" required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+                <div class="relative">
+                    <input type="password" id="password_confirmation" name="password_confirmation"
+                        placeholder="Confirm Password" required
+                        class="w-full px-4 py-3 pr-16 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+                    <button type="button" data-toggle="password_confirmation"
+                        class="absolute inset-y-0 right-0 px-4 text-sm font-medium text-amber-600 hover:text-amber-700 focus:outline-none">
+                        Show
+                    </button>
+                </div>
 
                 <button type="submit"
                     class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
@@ -71,6 +84,17 @@
             </p>
         </div>
     </div>
+
+    <script>
+        document.querySelectorAll('[data-toggle]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var input = document.getElementById(btn.dataset.toggle);
+                var show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                btn.textContent = show ? 'Hide' : 'Show';
+            });
+        });
+    </script>
 
 </body>
 

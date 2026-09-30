@@ -16,12 +16,15 @@ class EmployeeManagementAdd extends Controller
 
     private function filtered(Request $request)
     {
+        $like = \DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+
         return Employee::query()
-            ->when($request->q, fn($q, $s) => $q->where(function ($w) use ($s) {
-                $w->where('firstname', 'like', "%$s%")
-                    ->orWhere('lastname', 'like', "%$s%")
-                    ->orWhere('email', 'like', "%$s%")
-                    ->orWhere('employee_id', 'like', "%$s%");
+            ->when($request->q, fn($q, $s) => $q->where(function ($w) use ($s, $like) {
+                $w->where('firstname', $like, "%$s%")
+                    ->orWhere('lastname', $like, "%$s%")
+                    ->orWhere('email', $like, "%$s%")
+                    ->orWhere('employee_id', $like, "%$s%")
+                    ->orWhereRaw("CONCAT(firstname, ' ', lastname) $like ?", ["%$s%"]);
             }))
             ->when($request->education, fn($q, $v) => $q->where('education_qualification', $v))
             ->when($request->created_from, fn($q, $v) => $q->whereDate('created_at', '>=', $v))
