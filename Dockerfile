@@ -25,4 +25,4 @@ RUN composer install --no-dev --optimize-autoloader \
 RUN sed -i 's/80/10000/g' /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf
 EXPOSE 10000
 
-CMD php artisan config:cache && php artisan migrate --force && apache2-foreground
+CMD php artisan storage:link --force && php artisan config:cache && php artisan migrate --force && apache2-foreground
