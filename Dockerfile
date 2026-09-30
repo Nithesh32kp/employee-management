@@ -1,14 +1,14 @@
 FROM node:20 AS assets
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN rm -f package-lock.json && npm install
 COPY . .
 RUN npm run build
 
 FROM php:8.3-apache
 
-RUN apt-get update && apt-get install -y git unzip libzip-dev libpng-dev libonig-dev \
-    && docker-php-ext-install pdo_mysql zip gd mbstring bcmath \
+RUN apt-get update && apt-get install -y git unzip libzip-dev libpng-dev libonig-dev libpq-dev \
+    && docker-php-ext-install pdo_mysql pdo_pgsql zip gd mbstring bcmath \
     && a2enmod rewrite
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
