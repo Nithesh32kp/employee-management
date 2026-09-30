@@ -4,3 +4,4 @@ vendor
 .env
 storage/logs/*
 public/build
+public/hot
