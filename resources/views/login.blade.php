@@ -20,9 +20,9 @@
                     class="block h-auto max-h-24 w-full object-contain">
             </div>
             <h1 class="text-3xl font-bold mb-2">Creative Bees</h1>
-            <p class="text-amber-50 text-sm leading-relaxed">
+            {{-- <p class="text-amber-50 text-sm leading-relaxed">
                 Manage your team, attendance and payroll<br>all in one place.
-            </p>
+            </p> --}}
         </div>
 
         {{-- Right: Form --}}
