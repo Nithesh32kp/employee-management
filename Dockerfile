@@ -1,7 +1,7 @@
 FROM node:20 AS assets
 WORKDIR /app
 COPY package*.json ./
-RUN rm -f package-lock.json && npm install
+RUN rm -f package-lock.json && npm install --legacy-peer-deps
 COPY . .
 RUN npm run build
 
