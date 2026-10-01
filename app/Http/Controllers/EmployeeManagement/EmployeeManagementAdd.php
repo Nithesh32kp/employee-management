@@ -11,6 +11,7 @@ use App\Exports\EmployeesExport;
 use App\Imports\EmployeesImport;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
+
 class EmployeeManagementAdd extends Controller
 {
 
@@ -43,16 +44,21 @@ class EmployeeManagementAdd extends Controller
         return view('employees', compact('employees', 'educations', 'viewEmployee', 'editEmployee'));
     }
 
-
+    private function disk(): string
+    {
+        $d = config('filesystems.default');
+        return $d === 'local' ? 'public' : $d;
+    }
     public function store(Request $request)
     {
         $data = $request->validate($this->rules());
 
+
         if ($request->hasFile('photo')) {
-            $data['photo'] = $request->file('photo')->store('photos', 'public');
+            $data['photo'] = $request->file('photo')->store('photos', $this->disk());
         }
         if ($request->hasFile('resume')) {
-            $data['resume'] = $request->file('resume')->store('resumes', 'public');
+            $data['resume'] = $request->file('resume')->store('resumes', $this->disk());
         }
 
         Employee::create($data);
@@ -63,16 +69,15 @@ class EmployeeManagementAdd extends Controller
     public function update(Request $request, Employee $employee)
     {
         $data = $request->validate($this->rules($employee->id));
-
         if ($request->hasFile('photo')) {
             if ($employee->photo)
-                Storage::disk('public')->delete($employee->photo);
-            $data['photo'] = $request->file('photo')->store('photos', 'public');
+                Storage::disk($this->disk())->delete($employee->photo);
+            $data['photo'] = $request->file('photo')->store('photos', $this->disk());
         }
         if ($request->hasFile('resume')) {
             if ($employee->resume)
-                Storage::disk('public')->delete($employee->resume);
-            $data['resume'] = $request->file('resume')->store('resumes', 'public');
+                Storage::disk($this->disk())->delete($employee->resume);
+            $data['resume'] = $request->file('resume')->store('resumes', $this->disk());
         }
 
         $employee->update($data);
@@ -106,10 +111,9 @@ class EmployeeManagementAdd extends Controller
     public function destroy(Employee $employee)
     {
         if ($employee->photo)
-            Storage::disk('public')->delete($employee->photo);
+            Storage::disk($this->disk())->delete($employee->photo);
         if ($employee->resume)
-            Storage::disk('public')->delete($employee->resume);
-
+            Storage::disk($this->disk())->delete($employee->resume);
         $employee->delete();
 
         return redirect()->route('employees.index')->with('success', 'Employee deleted successfully.');
