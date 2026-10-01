@@ -335,14 +335,14 @@
                     </dl>
 
                     @if ($viewEmployee->resume)
-                        <a href="{{ $viewEmployee->resume_url }}" target="_blank"
+                        <a href="{{ $viewEmployee->resume_url }}" target="_blank" rel="noopener"
                             class="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-700 transition hover:bg-blue-100">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14" />
                             </svg>
-                            Download Resume
+                            Preview Resume
                         </a>
                     @endif
                 @else
@@ -389,7 +389,10 @@
 
                         <div>
                             <label class="mb-1.5 block text-sm font-medium text-slate-700">Photo</label>
-                            <input type="file" name="photo" accept="image/*"
+                            <img id="photoPreview" src="{{ $editEmployee?->photo_url }}"
+                                alt="Employee photo preview"
+                                class="{{ $editEmployee?->photo ? '' : 'hidden' }} mb-3 h-24 w-24 rounded-xl object-cover ring-1 ring-slate-200">
+                            <input id="photoInput" type="file" name="photo" accept="image/*"
                                 class="w-full rounded-xl border border-dashed border-slate-300 bg-slate-50 p-2 text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-amber-500 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-amber-600">
                             @error('photo')
                                 <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
@@ -398,6 +401,12 @@
 
                         <div>
                             <label class="mb-1.5 block text-sm font-medium text-slate-700">Resume</label>
+                            @if ($editEmployee?->resume)
+                                <a href="{{ $editEmployee->resume_url }}" target="_blank" rel="noopener"
+                                    class="mb-2 inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 underline underline-offset-2 hover:text-blue-900">
+                                    Preview current resume
+                                </a>
+                            @endif
                             <input type="file" name="resume" accept=".pdf,.doc,.docx"
                                 class="w-full rounded-xl border border-dashed border-slate-300 bg-slate-50 p-2 text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-slate-700">
                             @error('resume')
@@ -441,6 +450,16 @@
 
             $('#addEmployee').on('click', openModal);
             $('#closeModal, #cancelModal').on('click', closeModal);
+
+            const photoInput = document.getElementById('photoInput');
+            const photoPreview = document.getElementById('photoPreview');
+            photoInput?.addEventListener('change', () => {
+                const photo = photoInput.files[0];
+                if (!photo) return;
+
+                photoPreview.src = URL.createObjectURL(photo);
+                photoPreview.classList.remove('hidden');
+            });
 
             const importFile = document.getElementById('importFile');
             const importButton = document.getElementById('importButton');
