@@ -347,7 +347,7 @@
                     @endif
                 @else
                     {{-- ===== ADD / EDIT ===== --}}
-                    <form method="POST" enctype="multipart/form-data"
+                    <form id="employeeForm" method="POST" enctype="multipart/form-data"
                         action="{{ $editEmployee ? route('employees.update', $editEmployee) : route('employees.store') }}"
                         class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         @csrf
@@ -389,9 +389,11 @@
 
                         <div>
                             <label class="mb-1.5 block text-sm font-medium text-slate-700">Photo</label>
-                            <img id="photoPreview" src="{{ $editEmployee?->photo_url }}"
-                                alt="Employee photo preview"
-                                class="{{ $editEmployee?->photo ? '' : 'hidden' }} mb-3 h-24 w-24 rounded-xl object-cover ring-1 ring-slate-200">
+                            <div class="mb-3 flex h-24 items-center">
+                                <img id="photoPreview" src="{{ $editEmployee?->photo_url }}"
+                                    alt="Employee photo preview"
+                                    class="{{ $editEmployee?->photo ? '' : 'hidden' }} h-24 w-24 rounded-xl object-cover ring-1 ring-slate-200">
+                            </div>
                             <input id="photoInput" type="file" name="photo" accept="image/*"
                                 class="w-full rounded-xl border border-dashed border-slate-300 bg-slate-50 p-2 text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-amber-500 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-amber-600">
                             @error('photo')
@@ -401,12 +403,14 @@
 
                         <div>
                             <label class="mb-1.5 block text-sm font-medium text-slate-700">Resume</label>
-                            @if ($editEmployee?->resume)
-                                <a href="{{ $editEmployee->resume_url }}" target="_blank" rel="noopener"
-                                    class="mb-2 inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 underline underline-offset-2 hover:text-blue-900">
-                                    Preview current resume
-                                </a>
-                            @endif
+                            <div class="mb-3 flex h-24 items-center">
+                                @if ($editEmployee?->resume)
+                                    <a href="{{ $editEmployee->resume_url }}" target="_blank" rel="noopener"
+                                        class="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 underline underline-offset-2 hover:text-blue-900">
+                                        Preview current resume
+                                    </a>
+                                @endif
+                            </div>
                             <input type="file" name="resume" accept=".pdf,.doc,.docx"
                                 class="w-full rounded-xl border border-dashed border-slate-300 bg-slate-50 p-2 text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-slate-700">
                             @error('resume')
@@ -419,9 +423,20 @@
                                 class="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50">
                                 Cancel
                             </button>
-                            <button type="submit"
-                                class="rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-amber-500/30 transition hover:bg-amber-600 focus:outline-none focus:ring-4 focus:ring-amber-200">
-                                {{ $editEmployee ? 'Update' : 'Save' }}
+                            <button id="employeeSubmit" type="submit" aria-busy="false"
+                                class="rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-amber-500/30 transition hover:bg-amber-600 focus:outline-none focus:ring-4 focus:ring-amber-200 disabled:cursor-wait disabled:opacity-80">
+                                <span class="inline-flex items-center justify-center gap-2">
+                                    <svg id="employeeSubmitSpinner" class="hidden h-4 w-4 animate-spin"
+                                        fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                            stroke="currentColor" stroke-width="4" />
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z" />
+                                    </svg>
+                                    <span id="employeeSubmitLabel" aria-live="polite">
+                                        {{ $editEmployee ? 'Update' : 'Save' }}
+                                    </span>
+                                </span>
                             </button>
                         </div>
                     </form>
@@ -450,6 +465,22 @@
 
             $('#addEmployee').on('click', openModal);
             $('#closeModal, #cancelModal').on('click', closeModal);
+
+            const employeeForm = document.getElementById('employeeForm');
+            employeeForm?.addEventListener('submit', function(event) {
+                if (this.dataset.submitting === 'true') {
+                    event.preventDefault();
+                    return;
+                }
+
+                this.dataset.submitting = 'true';
+                const button = document.getElementById('employeeSubmit');
+                button.disabled = true;
+                button.setAttribute('aria-busy', 'true');
+                document.getElementById('employeeSubmitSpinner').classList.remove('hidden');
+                document.getElementById('employeeSubmitLabel').textContent =
+                    {{ Js::from($editEmployee ? 'Updating...' : 'Saving...') }};
+            });
 
             const photoInput = document.getElementById('photoInput');
             const photoPreview = document.getElementById('photoPreview');

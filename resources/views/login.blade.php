@@ -40,7 +40,7 @@
                 <p class="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">{{ session('status') }}</p>
             @endif
 
-            <form method="POST" action="{{ route('login.store') }}" class="space-y-5">
+            <form id="loginForm" method="POST" action="{{ route('login.store') }}" class="space-y-5">
                 @csrf
 
                 {{-- Email --}}
@@ -80,9 +80,17 @@
                     {{-- <a href="{{ route('password.request') }}" class="text-amber-600 hover:underline">Forgot password?</a> --}}
                 </div>
 
-                <button type="submit"
-                    class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
-                    Login
+                <button id="loginSubmit" type="submit" aria-busy="false"
+                    class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80">
+                    <span class="inline-flex items-center justify-center gap-2">
+                        <svg id="loginSpinner" class="hidden h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"
+                            aria-hidden="true">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z" />
+                        </svg>
+                        <span id="loginLabel" aria-live="polite">Login</span>
+                    </span>
                 </button>
             </form>
             <p class="text-center text-sm text-gray-500 mt-6">
@@ -96,6 +104,20 @@
     </div>
 
     <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            if (this.dataset.submitting === 'true') {
+                event.preventDefault();
+                return;
+            }
+
+            this.dataset.submitting = 'true';
+            const button = document.getElementById('loginSubmit');
+            button.disabled = true;
+            button.setAttribute('aria-busy', 'true');
+            document.getElementById('loginSpinner').classList.remove('hidden');
+            document.getElementById('loginLabel').textContent = 'Signing in...';
+        });
+
         function togglePassword() {
             const input = document.getElementById('password');
             const btn = document.getElementById('toggleBtn');
